@@ -14,26 +14,67 @@ const renderer = new THREE.WebGLRenderer({
 
 const controls = new OrbitControls(camera,renderer.domElement)
 
+var orbitRadius = 10; // for example
+var date;
 
+
+
+
+
+function addstar(){
+const geometry = new THREE.SphereGeometry(0.25,24,24)
+const material = new THREE.MeshStandardMaterial({emissive:0xffffff,emissiveIntensity: 1000,color:0xffffff})
+const star = new THREE.Mesh(geometry,material)
+
+const [x,y,z] = Array(3).fill().map(()=>THREE.MathUtils.randFloatSpread(100))
+star.position.set(x,y,z)
+scene.add(star)
+}
+
+Array(200).fill().forEach(addstar)
+
+const spaceTexture = new THREE.TextureLoader().load('space.jpg')
+scene.background = spaceTexture
+renderer.toneMapping = THREE.ReinhardToneMapping;
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth,window.innerHeight);
 camera.position.setZ(30);
-
-
-
 renderer.render(scene,camera);
 
-const geometry = new THREE.TorusGeometry(10,3,16,100);
-const material = new THREE.MeshStandardMaterial( {color: 0xFF6347});
-const torus = new THREE.Mesh(geometry,material);
+const sun= new THREE.Mesh(
+  new THREE.SphereGeometry(5,32,32),
+  new THREE.MeshStandardMaterial({emissive: 0xffff00,emissiveIntensity: 1,
+    map: new THREE.TextureLoader().load('sun.jpg'),
+    normalMap: new THREE.TextureLoader().load('normal.jpg')
+  }) 
+);
+
+scene.add(sun)
+
+
+
+const mercury= new THREE.Mesh(
+  new THREE.SphereGeometry(1,20,20),
+  new THREE.MeshStandardMaterial({
+    map: new THREE.TextureLoader().load('mercury.jpg'),
+    normalMap: new THREE.TextureLoader().load('mercury_normal.jpg')
+  }) 
+);
+
  
-scene.add(torus)
+scene.add(mercury)
+
+
+
+
+
 
 const pointLight = new THREE.PointLight(0xffffff)
-
-pointLight.position.set(5,5,5)
+ pointLight.intensity = 1000
+pointLight.position.set(0,0,0)
 
 const ambientLight = new THREE.AmbientLight(0xffffff)
+ambientLight.intensity = 0.5
 
 scene.add(pointLight,ambientLight)
 
@@ -43,9 +84,15 @@ scene.add(lightHelper,gridHelper)
 
 function animate(){
   requestAnimationFrame(animate)
-  torus.rotation.y  += 0.01;
-
+  //torus.rotation.y  += 0.01;
+  date = Date.now() * 0.0001;
+  mercury.position.set(
+    Math.cos(date) * orbitRadius,
+    0,
+    Math.sin(date) * orbitRadius
+  );
   controls.update()
   renderer.render(scene,camera)
+  
 }
 animate()
