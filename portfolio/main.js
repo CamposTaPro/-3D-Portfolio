@@ -65,7 +65,7 @@ const mercury = new THREE.Mesh(
     normalMap: new THREE.TextureLoader().load('mercury_normal.jpg')
   })
 );
-mercury.position.x = 16;
+mercury.position.x = 19;
 const mercurySystem = new THREE.Group();
 mercurySystem.add(mercury);
 scene.add(mercurySystem);
@@ -78,7 +78,7 @@ const venus = new THREE.Mesh(
     normalMap: new THREE.TextureLoader().load('venus_normal.jpg')
   })
 );
-venus.position.x = 32;
+venus.position.x = 36;
 const venusSystem = new THREE.Group();
 venusSystem.add(venus);
 
@@ -92,12 +92,41 @@ const earth = new THREE.Mesh(
     normalMap: new THREE.TextureLoader().load('earth_normal.jpg')
   })
 );
-earth.position.x = 48;
+earth.position.x = 49,7;
 const earthSystem = new THREE.Group();
 earthSystem.add(earth);
 
+const moon = new THREE.Mesh(
+  new THREE.SphereGeometry(0.5, 10, 10),
+  new THREE.MeshStandardMaterial({
+    map: new THREE.TextureLoader().load('moon.jpg'),
+    normalMap: new THREE.TextureLoader().load('moon_normal.jpg')
+  })
+);
+moon.position.x = earth.position.x + 5;
+const moonOrbit = new THREE.Group();
 
-scene.add(earthSystem);
+
+
+
+moonOrbit.add(moon);
+
+scene.add(earthSystem,moonOrbit);
+
+
+const mars = new THREE.Mesh(
+  new THREE.SphereGeometry(3, 20, 20),
+  new THREE.MeshStandardMaterial({
+    map: new THREE.TextureLoader().load('mars.jpg'),
+    normalMap: new THREE.TextureLoader().load('mars_normal.jpg')
+  })
+);
+mars.position.x = 75;
+const marsSystem = new THREE.Group();
+marsSystem.add(mars);
+
+
+scene.add(marsSystem);
 
 
 // Create and add lights to the scene
@@ -116,14 +145,34 @@ const gridHelper = new THREE.GridHelper(200, 50);
 //scene.add(lightHelper, gridHelper);
 
 const EARTH_YEAR = 2 * Math.PI *(1/60)*(1/60);
+
+// Set up variables for moon's orbit
+const moonOrbitRadius = 5;
+
+let moonOrbitAngle = 0;
 // Animation function
 function animate() {
   requestAnimationFrame(animate);
-
+  venus.rotation.y += 0.001;
   earth.rotation.y += 0.01;
+  mars.rotation.y += 0.008;
   mercurySystem.rotation.y += EARTH_YEAR*2;
   venusSystem.rotation.y += EARTH_YEAR;
   earthSystem.rotation.y += EARTH_YEAR/2;
+  marsSystem.rotation.y += EARTH_YEAR/2.5
+  moonOrbit.rotation.y += EARTH_YEAR/2;
+ 
+  // Update Moon's orbit around Earth
+  moonOrbitAngle += 0.05;
+  const earthRotation = earthSystem.rotation.y;
+  
+  // Calculate the position of the moon in Earth's rotated frame
+  const moonOrbitX = moonOrbitRadius * Math.cos(moonOrbitAngle + earthRotation);
+  const moonOrbitZ = moonOrbitRadius * Math.sin(moonOrbitAngle + earthRotation);
+
+  // Update the moon's position considering Earth's rotation
+  moon.position.x = earth.position.x + moonOrbitX;
+  moon.position.z = earth.position.z + moonOrbitZ;
 
   // Update OrbitControls
   controls.update();
