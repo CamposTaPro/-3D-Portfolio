@@ -44,7 +44,7 @@ renderer.render(scene, camera);
 
 // Create and add the sun to the scene
 const sun = new THREE.Mesh(
-  new THREE.SphereGeometry(5, 32, 32),
+  new THREE.SphereGeometry(20, 32, 32),
   new THREE.MeshStandardMaterial({
     emissive: 0xffff00,
     emissiveIntensity: 1,
@@ -52,6 +52,7 @@ const sun = new THREE.Mesh(
     normalMap: new THREE.TextureLoader().load('normal.jpg')
   })
 );
+sun.name = "Sun";
 const solarSystem = new THREE.Group();
 solarSystem.add(sun);
 
@@ -65,7 +66,8 @@ const mercury = new THREE.Mesh(
     normalMap: new THREE.TextureLoader().load('mercury_normal.jpg')
   })
 );
-mercury.position.x = 19;
+mercury.name = "Mercury";
+mercury.position.x = 19+15;
 const mercurySystem = new THREE.Group();
 mercurySystem.add(mercury);
 scene.add(mercurySystem);
@@ -78,7 +80,8 @@ const venus = new THREE.Mesh(
     normalMap: new THREE.TextureLoader().load('venus_normal.jpg')
   })
 );
-venus.position.x = 36;
+venus.name = "Venus";
+venus.position.x = 32+15;
 const venusSystem = new THREE.Group();
 venusSystem.add(venus);
 
@@ -92,7 +95,8 @@ const earth = new THREE.Mesh(
     normalMap: new THREE.TextureLoader().load('earth_normal.jpg')
   })
 );
-earth.position.x = 49,7;
+earth.name = "Earth";
+earth.position.x = 49.7+15;
 const earthSystem = new THREE.Group();
 earthSystem.add(earth);
 
@@ -103,6 +107,7 @@ const moon = new THREE.Mesh(
     normalMap: new THREE.TextureLoader().load('moon_normal.jpg')
   })
 );
+moon.name = "Moon!! You have mad skills 😎";
 moon.position.x = earth.position.x + 5;
 const moonOrbit = new THREE.Group();
 
@@ -121,13 +126,28 @@ const mars = new THREE.Mesh(
     normalMap: new THREE.TextureLoader().load('mars_normal.jpg')
   })
 );
-mars.position.x = 75;
+mars.name = "Mars";
+mars.position.x = 75+15;
 const marsSystem = new THREE.Group();
 marsSystem.add(mars);
 
 
 scene.add(marsSystem);
 
+
+
+const jupiter = new THREE.Mesh(
+  new THREE.SphereGeometry(10, 20, 20),
+  new THREE.MeshStandardMaterial({
+    map: new THREE.TextureLoader().load('jupiter.jpg')
+  })
+);
+jupiter.name = "Jupiter";
+jupiter.position.x = 150+15;
+const jupiterSystem = new THREE.Group();
+jupiterSystem.add(jupiter);
+
+scene.add(jupiterSystem);
 
 // Create and add lights to the scene
 const pointLight = new THREE.PointLight(0xffffff);
@@ -150,18 +170,45 @@ const EARTH_YEAR = 2 * Math.PI *(1/60)*(1/60);
 const moonOrbitRadius = 5;
 
 let moonOrbitAngle = 0;
+
+
+document.addEventListener('click', (event) => {
+  const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+  const mouseY = - (event.clientY / window.innerHeight) * 2 + 1;
+
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  mouse.x = mouseX;
+  mouse.y = mouseY;
+
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObjects(scene.children, true);
+
+  if (intersects.length > 0) {
+    //console.log(intersects[0].object);
+    alert("You clicked on " + intersects[0].object.name);
+  }
+});
+
+
+
 // Animation function
 function animate() {
   requestAnimationFrame(animate);
   venus.rotation.y += 0.001;
   earth.rotation.y += 0.01;
   mars.rotation.y += 0.008;
+  jupiter.rotation.y += 0.02;
   mercurySystem.rotation.y += EARTH_YEAR*2;
   venusSystem.rotation.y += EARTH_YEAR;
   earthSystem.rotation.y += EARTH_YEAR/2;
   marsSystem.rotation.y += EARTH_YEAR/2.5
   moonOrbit.rotation.y += EARTH_YEAR/2;
- 
+  jupiterSystem.rotation.y += EARTH_YEAR/10;
+
+
   // Update Moon's orbit around Earth
   moonOrbitAngle += 0.05;
   const earthRotation = earthSystem.rotation.y;
