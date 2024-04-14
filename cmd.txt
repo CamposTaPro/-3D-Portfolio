@@ -1,4 +1,1 @@
-<?PHP 
-echo "Hello THM"; 
-?>
- helooo
+hello
